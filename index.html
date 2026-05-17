@@ -1,23 +1,52 @@
-<form
+<!-- modify this form HTML as you wish and place wherever you want your form -->
+<form 
+  class="formcarryForm" 
   action="https://formcarry.com/s/nZ6OcDyb0dR"
-  method="POST"
   enctype="multipart/form-data"
 >
-  <label>
-    Your Discord Username:
-    <input type="text" name="username" required>
-  </label>
-  <label>
-    Preferred Date (UTC):
-    <input type="date" name="date" required>
-  </label>
-  <label>
-    Preferred Time (UTC):
-    <input type="time" name="time" required>
-  </label>
-  <label>
-    Reason of appointment:
-    <textarea name="message" required></textarea>
-  </label>
-  <button type="submit">Send request</button>
+  <input type="email" name="email" />
+  <input type="text" name="name" />
+  <button type="submit">Send</button>
 </form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+$(function(){
+  $(".formcarryForm").submit(function(e){
+    e.preventDefault();
+    var href = $(this).attr("action");
+    
+    $.ajax({
+        type: "POST",
+        url: href,
+        data: new FormData(this),
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function(response){
+          if(response.status == "success"){
+              alert("We received your submission, thank you!");
+          }
+          else if(response.code === 422){
+            alert("Field validation failed");
+            $.each(response.errors, function(key) {
+              $('[name="' + key + '"]').addClass('formcarry-field-error');
+            });
+          }
+          else{
+            alert("An error occured: " + response.message);
+          }
+        },
+        error: function(jqXHR, textStatus){
+          const errorObject = jqXHR.responseJSON
+
+          alert("Request failed, " + errorObject.title + ": " + errorObject.message);
+        },
+        complete: function(){
+          // This will be fired after request is complete whether it's successful or not.
+          // Use this block to run some code after request is complete.
+        }
+    });
+  });
+});
+</script>
